@@ -476,8 +476,9 @@ export function DeepDecisionPage() {
                 <div
                   key={factor}
                   className={`hand-drawn-box p-4 transition-all ${
-                    keptFactors.has(factor) ? 'bg-white' : 'bg-white opacity-50'
+                    keptFactors.has(factor) ? '' : 'opacity-50'
                   }`}
+                  style={{ backgroundColor: '#F5E6D3' }}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span className={`text-base ${keptFactors.has(factor) ? 'text-black' : 'text-gray-400 line-through'}`}>
@@ -486,16 +487,16 @@ export function DeepDecisionPage() {
                     {keptFactors.has(factor) ? (
                       <button
                         onClick={() => toggleFactor(factor)}
-                        className="hand-drawn-box bg-white px-4 py-1 text-sm text-black hover:bg-gray-50 transition-colors"
-                        style={{ boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)' }}
+                        className="px-4 py-1 text-sm text-black hover:bg-gray-200 transition-colors border-2 border-gray-500 rounded"
+                        style={{ boxShadow: '2px 2px 0px 0px rgba(107,114,128,0.6)' }}
                       >
                         划掉
                       </button>
                     ) : (
                       <button
                         onClick={() => toggleFactor(factor)}
-                        className="hand-drawn-box bg-white px-4 py-1 text-sm text-black hover:bg-gray-50 transition-colors"
-                        style={{ boxShadow: '2px 2px 0px 0px rgba(0,0,0,1)' }}
+                        className="px-4 py-1 text-sm text-black hover:bg-gray-200 transition-colors border-2 border-gray-500 rounded"
+                        style={{ boxShadow: '2px 2px 0px 0px rgba(107,114,128,0.6)' }}
                       >
                         留着
                       </button>
@@ -642,7 +643,7 @@ export function DeepDecisionPage() {
                 const wA = weightA[factor] || 50;
                 const wB = 100 - wA;
                 return (
-                  <div key={factor} className="p-4 border-2 border-black rounded bg-white">
+                  <div key={factor} className="p-4 border-2 border-gray-500 rounded" style={{ backgroundColor: '#F5E6D3' }}>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-black">{factor}</span>
                       <span className="text-xs text-gray-400">纠结比重: {factorWeights[factor] || 0}%</span>
@@ -674,7 +675,7 @@ export function DeepDecisionPage() {
       case 5:
         return (
           <div className="text-center space-y-6">
-            <div className="p-5 border-2 border-black rounded bg-white">
+            <div className="p-5 border-2 border-gray-500 rounded" style={{ backgroundColor: '#F5E6D3' }}>
               <p className="text-sm text-gray-500">经过深度分析，系统判定：</p>
               <p className="text-xl text-black mt-3">{options[winner || 0]}</p>
               <p className="text-xs text-gray-400 mt-2">是更优的选择</p>
@@ -686,7 +687,8 @@ export function DeepDecisionPage() {
               </MagicButton>
               <button
                 onClick={handleDebunk}
-                className="px-5 py-2 border-2 border-black rounded text-sm hover:bg-gray-50 transition-colors"
+                className="px-5 py-2 border-2 border-gray-500 rounded text-sm hover:bg-gray-50 transition-colors"
+                style={{ boxShadow: '3px 3px 0px 0px rgba(107,114,128,0.6)' }}
               >
                 可是我不甘心
               </button>
@@ -749,19 +751,19 @@ export function DeepDecisionPage() {
           {[1, 2, 3, 4, 5].map((step) => (
             <div
               key={step}
-              className={`w-8 h-8 border-2 border-black flex items-center justify-center text-sm transition-all ${
+              className={`w-8 h-8 border-2 border-gray-500 flex items-center justify-center text-sm transition-all ${
                 currentStep === step
-                  ? 'bg-black text-white'
+                  ? 'bg-gray-500 text-white'
                   : 'bg-white text-black'
               }`}
-              style={{ boxShadow: currentStep === step ? '2px 2px 0px 0px rgba(0,0,0,1)' : 'none' }}
+              style={{ boxShadow: currentStep === step ? '2px 2px 0px 0px rgba(107,114,128,0.6)' : 'none' }}
             >
               {step}
             </div>
           ))}
         </div>
 
-        <div className="hand-drawn-box bg-white p-6 mb-6 min-h-[350px]">
+        <div className="hand-drawn-box p-6 mb-6 min-h-[350px]" style={{ backgroundColor: '#F5E6D3' }}>
           <h2 className="text-lg text-black mb-4">
             {stepTitles[currentStep]}
           </h2>
@@ -772,8 +774,8 @@ export function DeepDecisionPage() {
           {currentStep > 1 && currentStep < 5 && (
             <button
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1) as StepType)}
-              className="hand-drawn-box bg-white px-6 py-2 text-sm text-black hover:bg-gray-50 transition-colors"
-              style={{ boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)' }}
+              className="hand-drawn-box px-6 py-2 text-sm text-black hover:bg-gray-50 transition-colors"
+              style={{ backgroundColor: '#F5E6D3', boxShadow: '3px 3px 0px 0px rgba(107,114,128,0.6)' }}
             >
               上一步
             </button>
@@ -784,9 +786,12 @@ export function DeepDecisionPage() {
               onClick={handleNextStep}
               disabled={!isStepValid()}
               className={`hand-drawn-box px-6 py-2 text-sm text-black transition-all ${
-                isStepValid() ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 opacity-50 cursor-not-allowed'
+                isStepValid() ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'
               }`}
-              style={{ boxShadow: isStepValid() ? '3px 3px 0px 0px rgba(0,0,0,1)' : 'none' }}
+              style={{ 
+                backgroundColor: isStepValid() ? '#F5E6D3' : '#E5E5E5',
+                boxShadow: isStepValid() ? '3px 3px 0px 0px rgba(107,114,128,0.6)' : 'none' 
+              }}
             >
               下一步
             </button>
@@ -796,9 +801,12 @@ export function DeepDecisionPage() {
               onClick={calculateResult}
               disabled={!isStepValid()}
               className={`hand-drawn-box px-6 py-2 text-sm text-black transition-all ${
-                isStepValid() ? 'bg-white hover:bg-gray-50' : 'bg-gray-100 opacity-50 cursor-not-allowed'
+                isStepValid() ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'
               }`}
-              style={{ boxShadow: isStepValid() ? '3px 3px 0px 0px rgba(0,0,0,1)' : 'none' }}
+              style={{ 
+                backgroundColor: isStepValid() ? '#F5E6D3' : '#E5E5E5',
+                boxShadow: isStepValid() ? '3px 3px 0px 0px rgba(107,114,128,0.6)' : 'none' 
+              }}
             >
               开始计算
             </button>
@@ -808,7 +816,7 @@ export function DeepDecisionPage() {
 
       {showDebunkModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="hand-drawn-box bg-white p-6 max-w-lg w-full">
+          <div className="hand-drawn-box p-6 max-w-lg w-full" style={{ backgroundColor: '#F5E6D3' }}>
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="w-6 h-6 text-magic-red" />
               <h3 className="text-lg hand-font text-black">实验室逆向拆穿报告</h3>
@@ -830,7 +838,8 @@ export function DeepDecisionPage() {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDebunkModal(false)}
-                className="px-4 py-2 border-2 border-black rounded text-sm hover:bg-gray-50"
+                className="px-4 py-2 border-2 border-gray-500 rounded text-sm hover:bg-gray-50"
+                style={{ boxShadow: '2px 2px 0px 0px rgba(107,114,128,0.6)' }}
               >
                 再想想
               </button>
@@ -844,7 +853,7 @@ export function DeepDecisionPage() {
 
       {showOverflowModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="hand-drawn-box bg-white p-6 max-w-sm w-full text-center">
+          <div className="hand-drawn-box p-6 max-w-sm w-full text-center" style={{ backgroundColor: '#F5E6D3' }}>
             <AlertCircle className="w-8 h-8 mx-auto mb-3 text-magic-red" />
             <p className="text-sm text-black mb-2">纠结比重总和已超过100%</p>
             <p className="text-xs text-gray-400 mb-6">
@@ -852,8 +861,8 @@ export function DeepDecisionPage() {
             </p>
             <button
               onClick={() => setShowOverflowModal(false)}
-              className="hand-drawn-box bg-white px-6 py-2 text-sm text-black hover:bg-gray-50 transition-colors"
-              style={{ boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)' }}
+              className="hand-drawn-box px-6 py-2 text-sm text-black hover:bg-gray-50 transition-colors"
+              style={{ backgroundColor: '#F5E6D3', boxShadow: '3px 3px 0px 0px rgba(107,114,128,0.6)' }}
             >
               返回修改
             </button>

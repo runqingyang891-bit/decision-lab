@@ -42,7 +42,7 @@ export function WelcomePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <HandDrawnFrame className="max-w-md w-full">
+      <HandDrawnFrame className="max-w-sm w-full">
         <div className="text-center mb-10">
           <h1 className="text-2xl hand-font mb-2 text-black">
             纠结症自救实验室

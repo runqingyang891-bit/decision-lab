@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../stores/appStore';
 import { HandDrawnFrame } from '../components/layout/HandDrawnFrame';
 import { HandDrawnInput } from '../components/common/HandDrawnInput';
-import { ArrowLeft, RotateCcw, Save } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Save, X } from 'lucide-react';
 
 type GameType = 'coin' | 'wheel' | 'scratch' | 'throw';
 
@@ -23,7 +23,7 @@ function GameTab({ label, active, onClick }: GameTabProps) {
       className={`px-4 py-2 text-sm transition-all ${
         active
           ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-          : 'bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
+          : 'bg-white border-2 border-gray-500 shadow-[4px_4px_0px_0px_rgba(107,114,128,0.6)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(107,114,128,0.6)]'
       }`}
     >
       {label}
@@ -36,14 +36,14 @@ function WoodButton({ onClick, disabled, children, className = '' }: { onClick: 
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-5 py-2 text-sm text-white transition-all border-2 border-black ${className} ${
+      className={`px-5 py-2 text-sm text-white transition-all border-2 border-gray-500 ${className} ${
         disabled
           ? 'opacity-50 cursor-not-allowed'
           : 'hover:translate-x-[1px] hover:translate-y-[1px]'
       }`}
       style={{
         backgroundColor: WOOD_COLOR,
-        boxShadow: disabled ? 'none' : '4px 4px 0px 0px rgba(0,0,0,1)'
+        boxShadow: disabled ? 'none' : '4px 4px 0px 0px rgba(107,114,128,0.6)'
       }}
       onMouseEnter={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = WOOD_HOVER; }}
       onMouseLeave={(e) => { if (!disabled) e.currentTarget.style.backgroundColor = WOOD_COLOR; }}
@@ -53,88 +53,164 @@ function WoodButton({ onClick, disabled, children, className = '' }: { onClick: 
   );
 }
 
-function CoinFlipGame({ options }: { options: string[] }) {
+interface ResultModalProps {
+  title: string;
+  result: string;
+  onClose: () => void;
+}
+
+function ResultModal({ title, result, onClose }: ResultModalProps) {
+  return (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="hand-drawn-box bg-white p-8 max-w-sm w-full text-center" style={{ backgroundColor: '#F5E6D3' }}>
+        <div className="text-xs text-gray-500 mb-4" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+          [ 实验结果 ]
+        </div>
+        <h3 className="text-lg text-black mb-6" style={{ fontFamily: 'Georgia, serif' }}>
+          {title}
+        </h3>
+        <div className="hand-drawn-box bg-white p-4 mb-6">
+          <p className="text-lg text-black">{result}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="hand-drawn-box bg-white px-6 py-2 text-sm text-black hover:bg-gray-50 transition-colors"
+          style={{ boxShadow: '3px 3px 0px 0px rgba(107,114,128,0.6)' }}
+        >
+          收下结果
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CoinFlipGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [isFlipping, setIsFlipping] = useState(false);
+  const [coinY, setCoinY] = useState(0);
+  const [coinRotation, setCoinRotation] = useState(0);
   const [result, setResult] = useState<string | null>(null);
-  const [showBubble, setShowBubble] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleFlip = () => {
     if (isFlipping || options.length < 2) return;
     
     setIsFlipping(true);
     setResult(null);
-    setShowBubble(true);
     
-    setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * options.length);
-      setResult(options[randomIndex]);
-      setIsFlipping(false);
+    let rotations = 0;
+    let position = 0;
+    const totalRotations = 20 + Math.floor(Math.random() * 10);
+    const targetY = -150;
+    
+    const flipInterval = setInterval(() => {
+      rotations += 36;
+      position -= 8;
       
-      setTimeout(() => {
-        setShowBubble(false);
-      }, 2000);
-    }, 3000);
+      if (position <= targetY) {
+        position = targetY;
+      }
+      
+      setCoinRotation(rotations);
+      setCoinY(position);
+      
+      if (rotations >= totalRotations && position <= targetY) {
+        clearInterval(flipInterval);
+        
+        setTimeout(() => {
+          const fallInterval = setInterval(() => {
+            position += 15;
+            
+            if (position >= 0) {
+              position = 0;
+              clearInterval(fallInterval);
+              
+              const randomIndex = Math.floor(Math.random() * options.length);
+              const finalResult = options[randomIndex];
+              setResult(finalResult);
+              setIsFlipping(false);
+              
+              setTimeout(() => {
+                setShowModal(true);
+                onResult(finalResult);
+              }, 1000);
+            }
+            
+            setCoinY(position);
+          }, 20);
+        }, 300);
+      }
+    }, 20);
   };
 
   return (
     <div className="flex flex-col items-center">
-      {showBubble && (
-        <div className="mb-8 p-3 border-2 border-black rounded text-center max-w-xs animate-float bg-white">
-          <p className="text-xs italic text-gray-700">
-            "在硬币落地的这一刻，你其实已经知道自己更希望是哪一面了。"
-          </p>
-        </div>
-      )}
-
-      <div className="relative mb-8">
+      <div className="relative mb-8" style={{ height: '150px' }}>
         <div
-          className={`w-32 h-32 rounded-full border-4 border-black flex items-center justify-center text-2xl transition-transform ${
-            isFlipping ? 'animate-spin-slow' : ''
-          }`}
+          className="absolute left-1/2 -translate-x-1/2 transition-transform"
           style={{
-            background: '#FDFBF7',
-            boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)'
+            transform: `translate(-50%, ${coinY}px) rotateY(${coinRotation}deg)`,
+            width: '80px',
+            height: '100px',
+            perspective: '500px'
           }}
         >
-          {isFlipping ? (
-            <span className="text-black">?</span>
-          ) : result ? (
-            <span className="text-black text-sm">{result.charAt(0)}</span>
-          ) : (
-            <span className="text-black">?</span>
-          )}
+          <div 
+            className="w-full h-full rounded-lg flex items-center justify-center"
+            style={{
+              background: 'linear-gradient(145deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
+              border: '3px solid #8B4513',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+              borderRadius: '8px'
+            }}
+          >
+            {result ? (
+              <span className="text-black font-bold text-xl" style={{ textShadow: '1px 1px 0 rgba(255,255,255,0.5)' }}>
+                {result.charAt(0)}
+              </span>
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full bg-black mb-1" />
+                <span className="text-black text-xs font-bold">?</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-500 whitespace-nowrap">
-          {isFlipping ? '旋转中...' : result ? `结果: ${result}` : '点击开始'}
-        </div>
+        
+        <div 
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-4 rounded-full"
+          style={{ backgroundColor: '#8B4513', opacity: 0.3 }}
+        />
       </div>
 
       <WoodButton onClick={handleFlip} disabled={isFlipping || options.length < 2}>
         开始投掷
       </WoodButton>
 
-      {result && (
-        <div className="mt-8 p-3 border-2 border-black rounded text-center bg-white">
-          <p className="text-sm text-black">天意如此：{result}</p>
-        </div>
+      {showModal && result && (
+        <ResultModal 
+          title="天意如此" 
+          result={result} 
+          onClose={() => setShowModal(false)} 
+        />
       )}
     </div>
   );
 }
 
-function EliminationWheelGame({ options }: { options: string[] }) {
+function EliminationWheelGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [remainingOptions, setRemainingOptions] = useState<string[]>(options);
   const [isSpinning, setIsSpinning] = useState(false);
   const [eliminated, setEliminated] = useState<string | null>(null);
-  const [showComment, setShowComment] = useState(false);
   const [rotation, setRotation] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+
+  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
 
   const handleSpin = () => {
     if (isSpinning || remainingOptions.length <= 1) return;
     
     setIsSpinning(true);
     setEliminated(null);
-    setShowComment(false);
     
     const randomIndex = Math.floor(Math.random() * remainingOptions.length);
     const eliminatedOption = remainingOptions[randomIndex];
@@ -150,19 +226,24 @@ function EliminationWheelGame({ options }: { options: string[] }) {
     setTimeout(() => {
       setEliminated(eliminatedOption);
       setIsSpinning(false);
-      setShowComment(true);
       
       setTimeout(() => {
         setRemainingOptions(remainingOptions.filter((_, i) => i !== randomIndex));
-        setShowComment(false);
-      }, 2000);
+        
+        if (remainingOptions.length === 2) {
+          setTimeout(() => {
+            setShowModal(true);
+            onResult(remainingOptions.filter((_, i) => i !== randomIndex)[0]);
+          }, 500);
+        }
+      }, 1500);
     }, 3000);
   };
 
   if (remainingOptions.length === 1) {
     return (
       <div className="flex flex-col items-center">
-        <div className="p-4 border-2 border-black rounded text-center bg-white">
+        <div className="p-4 border-2 border-gray-500 rounded text-center bg-white">
           <p className="text-sm text-black">最后存活者：</p>
           <p className="text-lg text-black mt-2">{remainingOptions[0]}</p>
         </div>
@@ -171,27 +252,31 @@ function EliminationWheelGame({ options }: { options: string[] }) {
             setRemainingOptions(options);
             setRotation(0);
           }}
-          className="mt-6 px-4 py-2 border-2 border-black rounded text-xs hover:bg-gray-50 transition-colors"
+          className="mt-6 px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
         >
           重新开始
         </button>
+        {showModal && (
+          <ResultModal 
+            title="最终赢家" 
+            result={remainingOptions[0]} 
+            onClose={() => setShowModal(false)} 
+          />
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-center">
-      {showComment && eliminated && (
-        <div className="mb-6 p-3 border-2 border-black rounded text-center bg-white">
-          <p className="text-xs italic text-gray-700">
-            "看着「{eliminated}」被永久剔除，你心里是不是咯噔了一下？"
-          </p>
-        </div>
-      )}
-
-      <div className="relative w-56 h-56 mb-8">
+      <div className="relative w-64 h-64 mb-8">
+        <div 
+          className="absolute inset-4 rounded-full"
+          style={{ backgroundColor: '#8B4513', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}
+        />
+        
         <div
-          className="w-full h-full"
+          className="absolute inset-6 rounded-full overflow-hidden"
           style={{
             transform: `rotate(${rotation}deg)`,
             transition: isSpinning ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
@@ -202,39 +287,56 @@ function EliminationWheelGame({ options }: { options: string[] }) {
               const angle = (index / remainingOptions.length) * 360;
               const nextAngle = ((index + 1) / remainingOptions.length) * 360;
               const midAngle = (angle + nextAngle) / 2;
-              const x = 100 + 80 * Math.cos((midAngle - 90) * Math.PI / 180);
-              const y = 100 + 80 * Math.sin((midAngle - 90) * Math.PI / 180);
+              const x = 100 + 70 * Math.cos((midAngle - 90) * Math.PI / 180);
+              const y = 100 + 70 * Math.sin((midAngle - 90) * Math.PI / 180);
               
               return (
                 <g key={index}>
                   <path
-                    d={`M100,100 L100,20 A80,80 0 0,1 ${
-                      100 + 80 * Math.cos((nextAngle - 90) * Math.PI / 180)
-                    },${100 + 80 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
-                    fill="#FDFBF7"
-                    stroke="black"
+                    d={`M100,100 L100,30 A70,70 0 0,1 ${
+                      100 + 70 * Math.cos((nextAngle - 90) * Math.PI / 180)
+                    },${100 + 70 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
+                    fill={colors[index % colors.length]}
+                    stroke="#333"
                     strokeWidth="2"
-                    className={eliminated === option ? 'opacity-20' : ''}
+                    className={eliminated === option ? 'opacity-30' : ''}
                   />
                   <text
                     x={x}
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fontSize="11"
-                    className={eliminated === option ? 'opacity-20' : ''}
-                    fill="black"
+                    fontSize="10"
+                    className={eliminated === option ? 'opacity-30' : ''}
+                    fill="white"
+                    style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
                   >
-                    {option.length > 6 ? option.slice(0, 6) + '...' : option}
+                    {option.length > 5 ? option.slice(0, 5) + '...' : option}
                   </text>
                 </g>
               );
             })}
-            <circle cx="100" cy="100" r="15" fill={WOOD_COLOR} stroke="black" strokeWidth="2" />
+            <circle cx="100" cy="100" r="18" fill="#FFD700" stroke="#8B4513" strokeWidth="3" />
+            <circle cx="100" cy="100" r="8" fill="#8B4513" />
           </svg>
         </div>
         
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[20px] border-l-transparent border-r-transparent border-t-black" />
+        <div 
+          className="absolute top-2 left-1/2 -translate-x-1/2 z-10"
+          style={{
+            width: '0',
+            height: '0',
+            borderLeft: '12px solid transparent',
+            borderRight: '12px solid transparent',
+            borderTop: '25px solid #FF4A4A',
+            filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))'
+          }}
+        />
+        
+        <div 
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-32 h-8 rounded"
+          style={{ backgroundColor: '#8B4513', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}
+        />
       </div>
 
       <WoodButton onClick={handleSpin} disabled={isSpinning}>
@@ -245,7 +347,7 @@ function EliminationWheelGame({ options }: { options: string[] }) {
         {options.map((option) => (
           <span
             key={option}
-            className={`px-3 py-1 border-2 border-black rounded text-xs ${
+            className={`px-3 py-1 border-2 border-gray-500 rounded text-xs ${
               remainingOptions.includes(option)
                 ? 'bg-white text-black'
                 : 'bg-white text-gray-400 line-through opacity-50'
@@ -255,75 +357,125 @@ function EliminationWheelGame({ options }: { options: string[] }) {
           </span>
         ))}
       </div>
+
+      {showModal && (
+        <ResultModal 
+          title="转盘停在了" 
+          result={remainingOptions[0]} 
+          onClose={() => setShowModal(false)} 
+        />
+      )}
     </div>
   );
 }
 
-function ScratchCardGame({ options }: { options: string[] }) {
+function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const [scratchProgress, setScratchProgress] = useState(0);
+  const [zipperProgress, setZipperProgress] = useState(0);
+  const [isOpening, setIsOpening] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const handleScratch = () => {
+  const handleOpen = () => {
     if (revealed || options.length === 0) return;
     
-    setShowWarning(true);
+    setIsOpening(true);
     
-    setTimeout(() => {
-      setShowWarning(false);
-      const randomIndex = Math.floor(Math.random() * options.length);
-      setSelectedOption(options[randomIndex]);
-      setRevealed(true);
-    }, 1500);
-  };
-
-  const handleProgress = () => {
-    if (scratchProgress >= 90) {
-      handleScratch();
-    } else {
-      setScratchProgress(Math.min(scratchProgress + 20, 90));
-    }
+    const interval = setInterval(() => {
+      setZipperProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setRevealed(true);
+          setIsOpening(false);
+          
+          setTimeout(() => {
+            setShowModal(true);
+            onResult(selectedOption || '');
+          }, 1000);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 50);
+    
+    const randomIndex = Math.floor(Math.random() * options.length);
+    setSelectedOption(options[randomIndex]);
   };
 
   return (
     <div className="flex flex-col items-center">
-      {showWarning && (
-        <div className="mb-6 p-3 border-2 border-black rounded text-center bg-white">
-          <p className="text-xs italic text-gray-700">
-            "如果现在拉开，你最害怕看到哪一个选项？"
-          </p>
-        </div>
-      )}
-
-      <div className="relative w-56 h-32 mb-8 cursor-pointer" onClick={handleProgress}>
-        <div className="absolute inset-0 bg-white border-2 border-black rounded flex items-center justify-center">
+      <div className="relative w-56 h-36 mb-8">
+        <div 
+          className="absolute inset-0 border-2 border-gray-500 rounded flex items-center justify-center"
+          style={{ backgroundColor: '#F5E6D3' }}
+        >
           {revealed && selectedOption ? (
-            <p className="text-sm text-black">{selectedOption}</p>
+            <div className="text-center">
+              <p className="text-xs text-gray-500 mb-1">答案揭晓</p>
+              <p className="text-lg text-black font-bold">{selectedOption}</p>
+            </div>
           ) : (
-            <p className="text-gray-400 text-sm">选项内容</p>
+            <div className="text-center">
+              <p className="text-xs text-gray-400 mb-2">???</p>
+              <p className="text-[10px] text-gray-300">撕开拉链查看结果</p>
+            </div>
           )}
         </div>
         
         {!revealed && (
-          <div 
-            className="absolute inset-0 rounded flex items-center justify-center transition-opacity"
-            style={{ 
-              opacity: 1 - scratchProgress / 100,
-              backgroundColor: WOOD_COLOR
-            }}
-          >
-            <div className="text-white text-xs text-center">
-              <p>点击刮开涂层</p>
-              <p className="text-xs mt-2">进度: {scratchProgress}%</p>
+          <>
+            <div 
+              className="absolute top-0 left-0 right-0 h-1/2 rounded-t transition-all"
+              style={{ 
+                backgroundColor: '#8B4513',
+                clipPath: `polygon(0 0, 100% 0, ${100 - zipperProgress}% 100%, ${zipperProgress}% 100%)`
+              }}
+            >
+              <div className="absolute bottom-0 left-0 right-0 h-2 flex justify-center">
+                <div className="flex">
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="w-1 h-full mx-px" style={{ backgroundColor: '#D4A574' }} />
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+            
+            <div 
+              className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b transition-all"
+              style={{ 
+                backgroundColor: '#8B4513',
+                clipPath: `polygon(${zipperProgress}% 0, ${100 - zipperProgress}% 0, 100% 100%, 0 100%)`
+              }}
+            >
+              <div className="absolute top-0 left-0 right-0 h-2 flex justify-center">
+                <div className="flex">
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="w-1 h-full mx-px" style={{ backgroundColor: '#D4A574' }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div 
+              className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ 
+                top: 'calc(50% - 12px)',
+                backgroundColor: '#FFD700',
+                border: '2px solid #8B4513',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                transform: `translateX(calc(-50% + ${(zipperProgress - 50) * 2}px))`,
+                transition: isOpening ? 'transform 0.05s linear' : 'none'
+              }}
+            >
+              <div className="w-3 h-0.5 bg-gray-500 rounded" />
+            </div>
+          </>
         )}
       </div>
 
       {!revealed ? (
-        <WoodButton onClick={handleProgress}>
-          刮开涂层
+        <WoodButton onClick={handleOpen} disabled={isOpening}>
+          拉开拉链
         </WoodButton>
       ) : (
         <div className="text-center">
@@ -332,23 +484,32 @@ function ScratchCardGame({ options }: { options: string[] }) {
             onClick={() => {
               setRevealed(false);
               setSelectedOption(null);
-              setScratchProgress(0);
+              setZipperProgress(0);
             }}
-            className="px-4 py-2 border-2 border-black rounded text-xs hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
           >
             再来一次
           </button>
         </div>
       )}
+
+      {showModal && selectedOption && (
+        <ResultModal 
+          title="答案揭晓" 
+          result={selectedOption} 
+          onClose={() => setShowModal(false)} 
+        />
+      )}
     </div>
   );
 }
 
-function SubconsciousThrowGame({ options }: { options: string[] }) {
+function SubconsciousThrowGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [progress, setProgress] = useState(0);
   const [isCharging, setIsCharging] = useState(false);
   const [isOverloaded, setIsOverloaded] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleCharge = () => {
     if (isOverloaded || result) return;
@@ -364,8 +525,14 @@ function SubconsciousThrowGame({ options }: { options: string[] }) {
           setTimeout(() => {
             setIsOverloaded(false);
             const randomIndex = Math.floor(Math.random() * options.length);
-            setResult(options[randomIndex]);
+            const finalResult = options[randomIndex];
+            setResult(finalResult);
             setIsCharging(false);
+            
+            setTimeout(() => {
+              setShowModal(true);
+              onResult(finalResult);
+            }, 1000);
           }, 1500);
           
           return 100;
@@ -385,7 +552,7 @@ function SubconsciousThrowGame({ options }: { options: string[] }) {
         <div className="text-white text-center animate-pulse">
           <p className="text-2xl mb-4">能量超载！</p>
           <p className="text-base">
-            如果系统现在替你随机消灭一个选项，你最不想谁死掉？
+            此刻你最想哪个选项出现？
           </p>
         </div>
       </div>
@@ -400,7 +567,7 @@ function SubconsciousThrowGame({ options }: { options: string[] }) {
       </div>
 
       <div className="w-56 h-20 mb-8">
-        <div className="h-full border-2 border-black rounded bg-white relative overflow-hidden">
+        <div className="h-full border-2 border-gray-500 rounded bg-white relative overflow-hidden">
           <div 
             className="absolute left-0 top-0 h-full transition-all duration-75"
             style={{ width: `${progress}%`, backgroundColor: WOOD_COLOR }}
@@ -421,12 +588,12 @@ function SubconsciousThrowGame({ options }: { options: string[] }) {
         onTouchStart={handleCharge}
         onTouchEnd={handleRelease}
         disabled={isOverloaded || !!result}
-        className={`w-28 h-28 rounded-full flex items-center justify-center text-white text-base transition-all border-2 border-black ${
+        className={`w-28 h-28 rounded-full flex items-center justify-center text-white text-base transition-all border-2 border-gray-500 ${
           result ? 'opacity-50 cursor-not-allowed' : ''
         }`}
         style={{
           backgroundColor: isCharging ? WOOD_HOVER : WOOD_COLOR,
-          boxShadow: isCharging || result ? 'none' : '4px 4px 0px 0px rgba(0,0,0,1)',
+          boxShadow: isCharging || result ? 'none' : '4px 4px 0px 0px rgba(107,114,128,0.6)',
           transform: isCharging ? 'scale(0.95)' : 'scale(1)'
         }}
       >
@@ -434,18 +601,26 @@ function SubconsciousThrowGame({ options }: { options: string[] }) {
       </button>
 
       {result && (
-        <div className="mt-8 p-4 border-2 border-black rounded text-center bg-white">
+        <div className="mt-8 p-4 border-2 border-gray-500 rounded text-center bg-white">
           <p className="text-sm text-black">潜意识选择：{result}</p>
           <button
             onClick={() => {
               setProgress(0);
               setResult(null);
             }}
-            className="mt-3 px-4 py-2 border-2 border-black rounded text-xs hover:bg-gray-50 transition-colors"
+            className="mt-3 px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
           >
             再来一次
           </button>
         </div>
+      )}
+
+      {showModal && result && (
+        <ResultModal 
+          title="潜意识的声音" 
+          result={result} 
+          onClose={() => setShowModal(false)} 
+        />
       )}
     </div>
   );
@@ -507,6 +682,10 @@ export function LightDecisionPage() {
     setTimeout(() => setSavedFlash(false), 2000);
   };
 
+  const handleGameResult = (result: string) => {
+    handleSave();
+  };
+
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-2xl mx-auto">
@@ -514,7 +693,7 @@ export function LightDecisionPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/hub')}
-              className="p-2 border-2 border-black rounded hover:bg-gray-50 transition-colors"
+              className="p-2 border-2 border-gray-500 rounded hover:bg-gray-50 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -523,12 +702,12 @@ export function LightDecisionPage() {
           <button
             onClick={handleSave}
             disabled={!isValidOptions}
-            className={`px-4 py-2 border-2 border-black rounded text-sm flex items-center gap-2 transition-all ${
+            className={`px-4 py-2 border-2 border-gray-500 rounded text-sm flex items-center gap-2 transition-all ${
               isValidOptions
                 ? 'hover:bg-gray-50 cursor-pointer bg-white'
                 : 'opacity-50 cursor-not-allowed bg-gray-100'
             }`}
-            style={{ boxShadow: isValidOptions ? '3px 3px 0px 0px rgba(0,0,0,1)' : 'none' }}
+            style={{ boxShadow: isValidOptions ? '3px 3px 0px 0px rgba(107,114,128,0.6)' : 'none' }}
           >
             <Save className="w-4 h-4" />
             {savedFlash ? '已存档' : '存档'}
@@ -536,46 +715,48 @@ export function LightDecisionPage() {
         </div>
 
         <HandDrawnFrame className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm text-black">
-              输入纠结选项{isCoinGame ? '（2个）' : '（2-6个）'}
-            </h2>
-            {!isCoinGame && options.length < 6 && (
-              <button
-                onClick={addOption}
-                className="text-xs text-gray-500 hover:text-black transition-colors"
-              >
-                + 添加选项
-              </button>
+          <div className="wood-paper-bg p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm text-black">
+                输入纠结选项{isCoinGame ? '（2个）' : '（2-6个）'}
+              </h2>
+              {!isCoinGame && options.length < 6 && (
+                <button
+                  onClick={addOption}
+                  className="text-xs text-gray-500 hover:text-black transition-colors"
+                >
+                  + 添加选项
+                </button>
+              )}
+            </div>
+            <div className="space-y-3">
+              {options.map((option, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="w-5 h-5 bg-gray-500 text-white rounded flex items-center justify-center text-xs">
+                    {index + 1}
+                  </span>
+                  <HandDrawnInput
+                    value={option}
+                    onChange={(e) => updateOption(index, e.target.value)}
+                    placeholder={`选项 ${index + 1}`}
+                  />
+                  {!isCoinGame && options.length > 2 && (
+                    <button
+                      onClick={() => removeOption(index)}
+                      className="p-2 border-2 border-gray-500 rounded hover:bg-gray-50 transition-colors text-xs"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {isCoinGame && (
+              <p className="text-xs text-gray-400 mt-3">
+                概率奇点硬币模式仅支持2个选项
+              </p>
             )}
           </div>
-          <div className="space-y-3">
-            {options.map((option, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="w-5 h-5 bg-black text-white rounded flex items-center justify-center text-xs">
-                  {index + 1}
-                </span>
-                <HandDrawnInput
-                  value={option}
-                  onChange={(e) => updateOption(index, e.target.value)}
-                  placeholder={`选项 ${index + 1}`}
-                />
-                {!isCoinGame && options.length > 2 && (
-                  <button
-                    onClick={() => removeOption(index)}
-                    className="p-2 border-2 border-black rounded hover:bg-gray-50 transition-colors text-xs"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          {isCoinGame && (
-            <p className="text-xs text-gray-400 mt-3">
-              概率奇点硬币模式仅支持2个选项
-            </p>
-          )}
         </HandDrawnFrame>
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -605,32 +786,34 @@ export function LightDecisionPage() {
         </div>
 
         <HandDrawnFrame className="min-h-[350px] flex items-center justify-center">
-          {!isValidOptions ? (
-            <div className="text-center">
-              <p className="text-sm text-black mb-2">请先输入有效的选项</p>
-              <p className="text-xs text-gray-400">每个选项不能为空，至少需要2个选项</p>
-            </div>
-          ) : (
-            <>
-              {activeGame === 'coin' && <CoinFlipGame options={options} />}
-              {activeGame === 'wheel' && <EliminationWheelGame options={options} />}
-              {activeGame === 'scratch' && <ScratchCardGame options={options} />}
-              {activeGame === 'throw' && <SubconsciousThrowGame options={options} />}
-            </>
-          )}
+          <div className="wood-paper-bg w-full h-full p-6 rounded-lg flex items-center justify-center">
+            {!isValidOptions ? (
+              <div className="text-center">
+                <p className="text-sm text-black mb-2">请先输入有效的选项</p>
+                <p className="text-xs text-gray-400">每个选项不能为空，至少需要2个选项</p>
+              </div>
+            ) : (
+              <>
+                {activeGame === 'coin' && <CoinFlipGame options={options} onResult={handleGameResult} />}
+                {activeGame === 'wheel' && <EliminationWheelGame options={options} onResult={handleGameResult} />}
+                {activeGame === 'scratch' && <ScratchCardGame options={options} onResult={handleGameResult} />}
+                {activeGame === 'throw' && <SubconsciousThrowGame options={options} onResult={handleGameResult} />}
+              </>
+            )}
+          </div>
         </HandDrawnFrame>
 
         <div className="mt-6 flex justify-center gap-4">
           <button
             onClick={() => navigate('/hub')}
-            className="p-2 border-2 border-black rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
+            className="p-2 border-2 border-gray-500 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm"
           >
             <RotateCcw className="w-4 h-4" />
             返回首页
           </button>
           <button
             onClick={() => setOptions(['', ''])}
-            className="px-4 py-2 border-2 border-black rounded hover:bg-gray-50 transition-colors text-sm"
+            className="px-4 py-2 border-2 border-gray-500 rounded hover:bg-gray-50 transition-colors text-sm"
           >
             重置选项
           </button>
