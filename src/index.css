@@ -149,35 +149,35 @@
   }
 
   .wood-paper-bg {
-    background-color: #DECBA4;
+    background-color: #E6D4B8;
     background-image: 
       repeating-linear-gradient(
         0deg,
         transparent,
         transparent 24px,
-        rgba(150, 110, 70, 0.15) 24px,
-        rgba(150, 110, 70, 0.15) 25px
+        rgba(140, 100, 60, 0.12) 24px,
+        rgba(140, 100, 60, 0.12) 25px
       ),
       repeating-linear-gradient(
         90deg,
         transparent,
         transparent 24px,
-        rgba(150, 110, 70, 0.15) 24px,
-        rgba(150, 110, 70, 0.15) 25px
+        rgba(140, 100, 60, 0.12) 24px,
+        rgba(140, 100, 60, 0.12) 25px
       ),
       repeating-linear-gradient(
         0deg,
         transparent,
         transparent 144px,
-        rgba(150, 110, 70, 0.2) 144px,
-        rgba(150, 110, 70, 0.2) 145px
+        rgba(140, 100, 60, 0.18) 144px,
+        rgba(140, 100, 60, 0.18) 145px
       ),
       repeating-linear-gradient(
         90deg,
         transparent,
         transparent 144px,
-        rgba(150, 110, 70, 0.2) 144px,
-        rgba(150, 110, 70, 0.2) 145px
+        rgba(140, 100, 60, 0.18) 144px,
+        rgba(140, 100, 60, 0.18) 145px
       );
   }
 }

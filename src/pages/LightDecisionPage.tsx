@@ -62,7 +62,7 @@ interface ResultModalProps {
 function ResultModal({ title, result, onClose }: ResultModalProps) {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="hand-drawn-box bg-white p-8 max-w-sm w-full text-center" style={{ backgroundColor: '#DECBA4' }}>
+      <div className="hand-drawn-box p-8 max-w-sm w-full text-center wood-paper-bg">
         <div className="text-xs text-gray-500 mb-4" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
           [ 实验结果 ]
         </div>
@@ -243,7 +243,7 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
   if (remainingOptions.length === 1) {
     return (
       <div className="flex flex-col items-center">
-        <div className="p-4 border-2 border-gray-500 rounded text-center" style={{ backgroundColor: '#E8F5E9' }}>
+        <div className="p-4 border-2 border-gray-500 rounded text-center bg-white">
           <p className="text-sm text-black">最后存活者：</p>
           <p className="text-lg text-black mt-2">{remainingOptions[0]}</p>
         </div>
@@ -269,10 +269,10 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-64 h-64 mb-8">
+      <div className="relative w-72 h-72 mb-8">
         <div 
           className="absolute inset-4 rounded-full"
-          style={{ backgroundColor: '#E8F5E9', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.1)' }}
+          style={{ backgroundColor: '#8B4513', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}
         />
         
         <div
@@ -287,18 +287,18 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
               const angle = (index / remainingOptions.length) * 360;
               const nextAngle = ((index + 1) / remainingOptions.length) * 360;
               const midAngle = (angle + nextAngle) / 2;
-              const x = 100 + 65 * Math.cos((midAngle - 90) * Math.PI / 180);
-              const y = 100 + 65 * Math.sin((midAngle - 90) * Math.PI / 180);
-              const fontSize = Math.max(8, Math.min(12, 60 / remainingOptions.length));
-              const maxLength = Math.max(4, Math.floor(100 / remainingOptions.length));
+              const x = 100 + 70 * Math.cos((midAngle - 90) * Math.PI / 180);
+              const y = 100 + 70 * Math.sin((midAngle - 90) * Math.PI / 180);
+              const fontSize = Math.max(9, Math.min(14, 80 / remainingOptions.length));
+              const maxLength = Math.max(3, Math.floor(120 / remainingOptions.length));
               const displayText = option.length > maxLength ? option.slice(0, maxLength) + '..' : option;
               
               return (
                 <g key={index}>
                   <path
-                    d={`M100,100 L100,35 A65,65 0 0,1 ${
-                      100 + 65 * Math.cos((nextAngle - 90) * Math.PI / 180)
-                    },${100 + 65 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
+                    d={`M100,100 L100,30 A70,70 0 0,1 ${
+                      100 + 70 * Math.cos((nextAngle - 90) * Math.PI / 180)
+                    },${100 + 70 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
                     fill={colors[index % colors.length]}
                     stroke="#333"
                     strokeWidth="2"
@@ -319,8 +319,8 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
                 </g>
               );
             })}
-            <circle cx="100" cy="100" r="15" fill="#E8F5E9" stroke="#8B4513" strokeWidth="2" />
-            <circle cx="100" cy="100" r="6" fill="#8B4513" />
+            <circle cx="100" cy="100" r="18" fill="#FFD700" stroke="#8B4513" strokeWidth="3" />
+            <circle cx="100" cy="100" r="8" fill="#8B4513" />
           </svg>
         </div>
         
@@ -376,33 +376,32 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [scratchProgress, setScratchProgress] = useState(0);
-  const [isScratching, setIsScratching] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const handleScratch = () => {
     if (revealed || options.length === 0) return;
     
-    setIsScratching(true);
+    if (selectedOption === null) {
+      const randomIndex = Math.floor(Math.random() * options.length);
+      setSelectedOption(options[randomIndex]);
+    }
     
-    const interval = setInterval(() => {
-      setScratchProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
+    setScratchProgress(prev => {
+      const increment = 15 + Math.floor(Math.random() * 10);
+      const newProgress = Math.min(prev + increment, 100);
+      
+      if (newProgress >= 100) {
+        setTimeout(() => {
           setRevealed(true);
-          setIsScratching(false);
-          
           setTimeout(() => {
             setShowModal(true);
             onResult(selectedOption || '');
           }, 1000);
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 50);
-    
-    const randomIndex = Math.floor(Math.random() * options.length);
-    setSelectedOption(options[randomIndex]);
+        }, 300);
+        return 100;
+      }
+      return newProgress;
+    });
   };
 
   return (
@@ -420,7 +419,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
           ) : (
             <div className="text-center">
               <p className="text-xs text-gray-400 mb-2">???</p>
-              <p className="text-[10px] text-gray-300">开始刮刮查看结果</p>
+              <p className="text-[10px] text-gray-300">点击刮开查看结果</p>
             </div>
           )}
         </div>
@@ -428,7 +427,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
         {!revealed && (
           <>
             <div 
-              className="absolute top-0 left-0 right-0 h-1/2 rounded-t transition-all"
+              className="absolute top-0 left-0 right-0 h-1/2 rounded-t transition-all duration-300"
               style={{ 
                 backgroundColor: '#8B4513',
                 clipPath: `polygon(0 0, 100% 0, ${100 - scratchProgress}% 100%, ${scratchProgress}% 100%)`
@@ -444,7 +443,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
             </div>
             
             <div 
-              className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b transition-all"
+              className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b transition-all duration-300"
               style={{ 
                 backgroundColor: '#8B4513',
                 clipPath: `polygon(${scratchProgress}% 0, ${100 - scratchProgress}% 0, 100% 100%, 0 100%)`
@@ -460,14 +459,13 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
             </div>
             
             <div 
-              className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center"
+              className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-300"
               style={{ 
                 top: 'calc(50% - 12px)',
                 backgroundColor: '#FFD700',
                 border: '2px solid #8B4513',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                transform: `translateX(calc(-50% + ${(scratchProgress - 50) * 2}px))`,
-                transition: isScratching ? 'transform 0.05s linear' : 'none'
+                transform: `translateX(calc(-50% + ${(scratchProgress - 50) * 2}px))`
               }}
             >
               <div className="w-3 h-0.5 bg-gray-500 rounded" />
@@ -481,7 +479,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
       </div>
 
       {!revealed ? (
-        <WoodButton onClick={handleScratch} disabled={isScratching}>
+        <WoodButton onClick={handleScratch}>
           开始刮刮
         </WoodButton>
       ) : (
