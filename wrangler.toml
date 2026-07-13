@@ -1,0 +1,5 @@
+name = "decision-lab"
+type = "pages"
+
+[pages]
+build_output_dir = "dist"
