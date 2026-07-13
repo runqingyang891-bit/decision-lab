@@ -163,22 +163,22 @@ export function HubPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-2xl hand-font text-black mb-1">
+            <h1 className="text-xl hand-font text-black mb-1">
               纠结症自救实验室
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-gray-500">
               Welcome back, {user_profile?.name || ''}。
             </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <div className="text-sm text-black">{completedCount}</div>
-                <div className="text-xs text-gray-500">已完成决策</div>
+                <div className="text-xs text-black">{completedCount}</div>
+                <div className="text-[10px] text-gray-500">已完成决策</div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-black">{inProgressCount}</div>
-                <div className="text-xs text-gray-500">进行中</div>
+                <div className="text-xs text-black">{inProgressCount}</div>
+                <div className="text-[10px] text-gray-500">进行中</div>
               </div>
             </div>
             <button className="w-12 h-12 rounded-full bg-magic-red border-2 border-black flex items-center justify-center text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
@@ -187,24 +187,24 @@ export function HubPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
           {modules.map((module) => (
             <div
               key={module.id}
-              className={`hand-drawn-box ${module.bgColor} p-6 flex flex-col`}
+              className={`hand-drawn-box ${module.bgColor} p-4 flex flex-col`}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 flex items-center justify-center">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 flex items-center justify-center">
                   {module.icon}
                 </div>
-                <h2 className="text-lg text-black font-medium">{module.title}</h2>
+                <h2 className="text-sm text-black font-medium">{module.title}</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-6 flex-1">
+              <p className="text-[10px] text-gray-600 mb-4 flex-1">
                 {module.description}
               </p>
               <button
                 onClick={() => navigate(module.path)}
-                className="hand-drawn-box bg-white px-5 py-2 text-sm text-black hover:bg-gray-50 transition-colors self-start"
+                className="hand-drawn-box bg-white px-3 py-1.5 text-[10px] text-black hover:bg-gray-50 transition-colors self-start"
                 style={{ boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)' }}
               >
                 {module.buttonText}
@@ -213,41 +213,41 @@ export function HubPage() {
           ))}
         </div>
 
-        <div className="hand-drawn-box bg-white p-6 mb-8">
-          <h2 className="text-base text-black mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
+        <div className="hand-drawn-box bg-white p-4 mb-10">
+          <h2 className="text-sm text-black mb-3 flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
             最近决策
           </h2>
           {decisions.length > 0 || judge_records.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {[...decisions].slice(-5).reverse().map((decision) => (
-                <div key={decision.id} className="flex items-center gap-3 p-3 border-2 border-black rounded">
+                <div key={decision.id} className="flex items-center gap-2 p-2 border-2 border-black rounded">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-black truncate">{decision.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-black truncate">{decision.title}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
                       {decision.type === 'long_term' ? '长期决策' : '短期决策'} · {decision.status === 'completed' ? '已完成' : '进行中'}
                     </p>
                   </div>
                   <button
                     onClick={() => navigate('/archive')}
-                    className="flex-shrink-0 px-3 py-1.5 border-2 border-black rounded text-xs text-black hover:bg-gray-50 transition-colors"
+                    className="flex-shrink-0 px-2 py-1 border-2 border-black rounded text-[10px] text-black hover:bg-gray-50 transition-colors"
                   >
                     查看选择
                   </button>
                 </div>
               ))}
               {[...judge_records].slice(-3).reverse().map((record) => (
-                <div key={record.id} className="flex items-center gap-3 p-3 border-2 border-black rounded">
+                <div key={record.id} className="flex items-center gap-2 p-2 border-2 border-black rounded">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-black truncate">{record.caseDecision}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      <Gavel className="w-3 h-3 inline mr-1" />
+                    <p className="text-xs text-black truncate">{record.caseDecision}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      <Gavel className="w-2.5 h-2.5 inline mr-1" />
                       裁判记录 · {record.caseMbti} · {record.score}星
                     </p>
                   </div>
                   <button
                     onClick={() => navigate('/archive')}
-                    className="flex-shrink-0 px-3 py-1.5 border-2 border-black rounded text-xs text-black hover:bg-gray-50 transition-colors"
+                    className="flex-shrink-0 px-2 py-1 border-2 border-black rounded text-[10px] text-black hover:bg-gray-50 transition-colors"
                   >
                     查看选择
                   </button>
@@ -255,9 +255,9 @@ export function HubPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-sm text-black mb-2">还没有任何决策记录。</p>
-              <p className="text-sm text-gray-600">是时候开始你的第一次选择了！</p>
+            <div className="text-center py-10">
+              <p className="text-xs text-black mb-2">还没有任何决策记录。</p>
+              <p className="text-[10px] text-gray-600">是时候开始你的第一次选择了！</p>
             </div>
           )}
         </div>

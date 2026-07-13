@@ -93,7 +93,7 @@ export function WelcomePage() {
             <HandDrawnCheckbox
               checked={agreements.agree1}
               onChange={(checked) => setAgreements({ ...agreements, agree1: checked })}
-              label="我承认我的逻辑并非完美无瑕。"
+              label="本实验室结论仅供参考。"
             />
             <HandDrawnCheckbox
               checked={agreements.agree2}
