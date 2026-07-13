@@ -62,7 +62,7 @@ interface ResultModalProps {
 function ResultModal({ title, result, onClose }: ResultModalProps) {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="hand-drawn-box bg-white p-8 max-w-sm w-full text-center" style={{ backgroundColor: '#F5E6D3' }}>
+      <div className="hand-drawn-box bg-white p-8 max-w-sm w-full text-center" style={{ backgroundColor: '#DECBA4' }}>
         <div className="text-xs text-gray-500 mb-4" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
           [ 实验结果 ]
         </div>
@@ -150,26 +150,26 @@ function CoinFlipGame({ options, onResult }: { options: string[]; onResult: (res
           style={{
             transform: `translate(-50%, ${coinY}px) rotateY(${coinRotation}deg)`,
             width: '80px',
-            height: '100px',
+            height: '80px',
             perspective: '500px'
           }}
         >
           <div 
-            className="w-full h-full rounded-lg flex items-center justify-center"
+            className="w-full h-full flex items-center justify-center"
             style={{
-              background: 'linear-gradient(145deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
-              border: '3px solid #8B4513',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-              borderRadius: '8px'
+              background: 'linear-gradient(145deg, #E8E8E8 0%, #C0C0C0 30%, #A8A8A8 50%, #C0C0C0 70%, #F0F0F0 100%)',
+              border: '2px solid #888',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -2px 4px rgba(0,0,0,0.2)',
+              borderRadius: '50%'
             }}
           >
             {result ? (
-              <span className="text-black font-bold text-xl" style={{ textShadow: '1px 1px 0 rgba(255,255,255,0.5)' }}>
+              <span className="text-black font-bold text-lg" style={{ textShadow: '1px 1px 0 rgba(255,255,255,0.8)' }}>
                 {result.charAt(0)}
               </span>
             ) : (
               <div className="flex flex-col items-center">
-                <div className="w-6 h-6 rounded-full bg-black mb-1" />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 mb-1" />
                 <span className="text-black text-xs font-bold">?</span>
               </div>
             )}
@@ -177,7 +177,7 @@ function CoinFlipGame({ options, onResult }: { options: string[]; onResult: (res
         </div>
         
         <div 
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-4 rounded-full"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-4 rounded-full"
           style={{ backgroundColor: '#8B4513', opacity: 0.3 }}
         />
       </div>
@@ -243,7 +243,7 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
   if (remainingOptions.length === 1) {
     return (
       <div className="flex flex-col items-center">
-        <div className="p-4 border-2 border-gray-500 rounded text-center bg-white">
+        <div className="p-4 border-2 border-gray-500 rounded text-center" style={{ backgroundColor: '#E8F5E9' }}>
           <p className="text-sm text-black">最后存活者：</p>
           <p className="text-lg text-black mt-2">{remainingOptions[0]}</p>
         </div>
@@ -272,7 +272,7 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
       <div className="relative w-64 h-64 mb-8">
         <div 
           className="absolute inset-4 rounded-full"
-          style={{ backgroundColor: '#8B4513', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}
+          style={{ backgroundColor: '#E8F5E9', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.1)' }}
         />
         
         <div
@@ -287,15 +287,18 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
               const angle = (index / remainingOptions.length) * 360;
               const nextAngle = ((index + 1) / remainingOptions.length) * 360;
               const midAngle = (angle + nextAngle) / 2;
-              const x = 100 + 70 * Math.cos((midAngle - 90) * Math.PI / 180);
-              const y = 100 + 70 * Math.sin((midAngle - 90) * Math.PI / 180);
+              const x = 100 + 65 * Math.cos((midAngle - 90) * Math.PI / 180);
+              const y = 100 + 65 * Math.sin((midAngle - 90) * Math.PI / 180);
+              const fontSize = Math.max(8, Math.min(12, 60 / remainingOptions.length));
+              const maxLength = Math.max(4, Math.floor(100 / remainingOptions.length));
+              const displayText = option.length > maxLength ? option.slice(0, maxLength) + '..' : option;
               
               return (
                 <g key={index}>
                   <path
-                    d={`M100,100 L100,30 A70,70 0 0,1 ${
-                      100 + 70 * Math.cos((nextAngle - 90) * Math.PI / 180)
-                    },${100 + 70 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
+                    d={`M100,100 L100,35 A65,65 0 0,1 ${
+                      100 + 65 * Math.cos((nextAngle - 90) * Math.PI / 180)
+                    },${100 + 65 * Math.sin((nextAngle - 90) * Math.PI / 180)} Z`}
                     fill={colors[index % colors.length]}
                     stroke="#333"
                     strokeWidth="2"
@@ -306,18 +309,18 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    fontSize="10"
+                    fontSize={fontSize}
                     className={eliminated === option ? 'opacity-30' : ''}
                     fill="white"
                     style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
                   >
-                    {option.length > 5 ? option.slice(0, 5) + '...' : option}
+                    {displayText}
                   </text>
                 </g>
               );
             })}
-            <circle cx="100" cy="100" r="18" fill="#FFD700" stroke="#8B4513" strokeWidth="3" />
-            <circle cx="100" cy="100" r="8" fill="#8B4513" />
+            <circle cx="100" cy="100" r="15" fill="#E8F5E9" stroke="#8B4513" strokeWidth="2" />
+            <circle cx="100" cy="100" r="6" fill="#8B4513" />
           </svg>
         </div>
         
@@ -372,21 +375,21 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
 function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [zipperProgress, setZipperProgress] = useState(0);
-  const [isOpening, setIsOpening] = useState(false);
+  const [scratchProgress, setScratchProgress] = useState(0);
+  const [isScratching, setIsScratching] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const handleOpen = () => {
+  const handleScratch = () => {
     if (revealed || options.length === 0) return;
     
-    setIsOpening(true);
+    setIsScratching(true);
     
     const interval = setInterval(() => {
-      setZipperProgress(prev => {
+      setScratchProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setRevealed(true);
-          setIsOpening(false);
+          setIsScratching(false);
           
           setTimeout(() => {
             setShowModal(true);
@@ -407,7 +410,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
       <div className="relative w-56 h-36 mb-8">
         <div 
           className="absolute inset-0 border-2 border-gray-500 rounded flex items-center justify-center"
-          style={{ backgroundColor: '#F5E6D3' }}
+          style={{ backgroundColor: '#E8F5E9' }}
         >
           {revealed && selectedOption ? (
             <div className="text-center">
@@ -417,7 +420,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
           ) : (
             <div className="text-center">
               <p className="text-xs text-gray-400 mb-2">???</p>
-              <p className="text-[10px] text-gray-300">撕开拉链查看结果</p>
+              <p className="text-[10px] text-gray-300">开始刮刮查看结果</p>
             </div>
           )}
         </div>
@@ -428,7 +431,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
               className="absolute top-0 left-0 right-0 h-1/2 rounded-t transition-all"
               style={{ 
                 backgroundColor: '#8B4513',
-                clipPath: `polygon(0 0, 100% 0, ${100 - zipperProgress}% 100%, ${zipperProgress}% 100%)`
+                clipPath: `polygon(0 0, 100% 0, ${100 - scratchProgress}% 100%, ${scratchProgress}% 100%)`
               }}
             >
               <div className="absolute bottom-0 left-0 right-0 h-2 flex justify-center">
@@ -444,7 +447,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
               className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b transition-all"
               style={{ 
                 backgroundColor: '#8B4513',
-                clipPath: `polygon(${zipperProgress}% 0, ${100 - zipperProgress}% 0, 100% 100%, 0 100%)`
+                clipPath: `polygon(${scratchProgress}% 0, ${100 - scratchProgress}% 0, 100% 100%, 0 100%)`
               }}
             >
               <div className="absolute top-0 left-0 right-0 h-2 flex justify-center">
@@ -463,8 +466,8 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
                 backgroundColor: '#FFD700',
                 border: '2px solid #8B4513',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                transform: `translateX(calc(-50% + ${(zipperProgress - 50) * 2}px))`,
-                transition: isOpening ? 'transform 0.05s linear' : 'none'
+                transform: `translateX(calc(-50% + ${(scratchProgress - 50) * 2}px))`,
+                transition: isScratching ? 'transform 0.05s linear' : 'none'
               }}
             >
               <div className="w-3 h-0.5 bg-gray-500 rounded" />
@@ -473,9 +476,13 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
         )}
       </div>
 
+      <div className="mb-4 text-center">
+        <p className="text-sm text-gray-600">刮开进度：{scratchProgress}%</p>
+      </div>
+
       {!revealed ? (
-        <WoodButton onClick={handleOpen} disabled={isOpening}>
-          拉开拉链
+        <WoodButton onClick={handleScratch} disabled={isScratching}>
+          开始刮刮
         </WoodButton>
       ) : (
         <div className="text-center">
@@ -484,7 +491,7 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
             onClick={() => {
               setRevealed(false);
               setSelectedOption(null);
-              setZipperProgress(0);
+              setScratchProgress(0);
             }}
             className="px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
           >
@@ -506,70 +513,47 @@ function ScratchCardGame({ options, onResult }: { options: string[]; onResult: (
 
 function SubconsciousThrowGame({ options, onResult }: { options: string[]; onResult: (result: string) => void }) {
   const [progress, setProgress] = useState(0);
-  const [isCharging, setIsCharging] = useState(false);
-  const [isOverloaded, setIsOverloaded] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
 
-  const handleCharge = () => {
-    if (isOverloaded || result) return;
+  const handleClick = () => {
+    if (result) return;
     
-    setIsCharging(true);
+    setClickCount(prev => prev + 1);
     
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 99) {
-          clearInterval(interval);
-          setIsOverloaded(true);
+    const increment = 10 + Math.floor(Math.random() * 10);
+    setProgress((prev) => {
+      const newProgress = Math.min(prev + increment, 100);
+      
+      if (newProgress >= 100) {
+        setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * options.length);
+          const finalResult = options[randomIndex];
+          setResult(finalResult);
           
           setTimeout(() => {
-            setIsOverloaded(false);
-            const randomIndex = Math.floor(Math.random() * options.length);
-            const finalResult = options[randomIndex];
-            setResult(finalResult);
-            setIsCharging(false);
-            
-            setTimeout(() => {
-              setShowModal(true);
-              onResult(finalResult);
-            }, 1000);
-          }, 1500);
-          
-          return 100;
-        }
-        return Math.min(prev + 5 + Math.random() * 5, 99);
-      });
-    }, 100);
+            setShowModal(true);
+            onResult(finalResult);
+          }, 1000);
+        }, 300);
+        return 100;
+      }
+      return newProgress;
+    });
   };
-
-  const handleRelease = () => {
-    setIsCharging(false);
-  };
-
-  if (isOverloaded) {
-    return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <div className="text-white text-center animate-pulse">
-          <p className="text-2xl mb-4">能量超载！</p>
-          <p className="text-base">
-            此刻你最想哪个选项出现？
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col items-center">
       <div className="mb-8 text-center">
         <p className="text-sm text-black mb-2">潜意识投掷器</p>
-        <p className="text-xs text-gray-500">按住按钮蓄力，释放后揭晓答案</p>
+        <p className="text-xs text-gray-500">点击按钮蓄力，蓄力满后揭晓答案</p>
       </div>
 
       <div className="w-56 h-20 mb-8">
         <div className="h-full border-2 border-gray-500 rounded bg-white relative overflow-hidden">
           <div 
-            className="absolute left-0 top-0 h-full transition-all duration-75"
+            className="absolute left-0 top-0 h-full transition-all duration-200"
             style={{ width: `${progress}%`, backgroundColor: WOOD_COLOR }}
           />
           
@@ -581,20 +565,29 @@ function SubconsciousThrowGame({ options, onResult }: { options: string[]; onRes
         </div>
       </div>
 
+      <div className="mb-4 text-center">
+        <p className="text-xs text-gray-500">点击次数：{clickCount} 次</p>
+      </div>
+
       <button
-        onMouseDown={handleCharge}
-        onMouseUp={handleRelease}
-        onMouseLeave={handleRelease}
-        onTouchStart={handleCharge}
-        onTouchEnd={handleRelease}
-        disabled={isOverloaded || !!result}
+        onClick={handleClick}
+        disabled={!!result}
         className={`w-28 h-28 rounded-full flex items-center justify-center text-white text-base transition-all border-2 border-gray-500 ${
           result ? 'opacity-50 cursor-not-allowed' : ''
         }`}
         style={{
-          backgroundColor: isCharging ? WOOD_HOVER : WOOD_COLOR,
-          boxShadow: isCharging || result ? 'none' : '4px 4px 0px 0px rgba(107,114,128,0.6)',
-          transform: isCharging ? 'scale(0.95)' : 'scale(1)'
+          backgroundColor: WOOD_COLOR,
+          boxShadow: result ? 'none' : '4px 4px 0px 0px rgba(107,114,128,0.6)',
+          transform: result ? 'scale(1)' : 'scale(1)'
+        }}
+        onMouseDown={(e) => {
+          if (!result) e.currentTarget.style.transform = 'scale(0.95)';
+        }}
+        onMouseUp={(e) => {
+          if (!result) e.currentTarget.style.transform = 'scale(1)';
+        }}
+        onMouseLeave={(e) => {
+          if (!result) e.currentTarget.style.transform = 'scale(1)';
         }}
       >
         {result ? '完成' : '蓄力'}
@@ -607,6 +600,7 @@ function SubconsciousThrowGame({ options, onResult }: { options: string[]; onRes
             onClick={() => {
               setProgress(0);
               setResult(null);
+              setClickCount(0);
             }}
             className="mt-3 px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
           >
