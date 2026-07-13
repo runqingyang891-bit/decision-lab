@@ -1,5 +1,9 @@
 name = "decision-lab"
 type = "pages"
 
+[build]
+command = "npm run build"
+publish = "dist"
+
 [pages]
 build_output_dir = "dist"
