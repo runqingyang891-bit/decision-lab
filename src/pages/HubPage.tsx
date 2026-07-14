@@ -126,7 +126,7 @@ export function HubPage() {
     {
       id: 'light',
       title: '轻度纠结处理器',
-      description: '硬币、转盘、刮刮乐、投掷器，四种方式帮你快速决定',
+      description: '抛、转、刮、投！四种无痛决策工具，三秒掀翻困难选择，交给天意来速通',
       buttonText: '开始纠结',
       icon: <Coins className="w-8 h-8" />,
       path: '/light-decision',
@@ -135,7 +135,7 @@ export function HubPage() {
     {
       id: 'deep',
       title: '人生变量处理器',
-      description: 'AHP层次分析法，深度拆解你的决策因子',
+      description: '打开AI因子盲盒，注入私密变量，加满纠结砝码。这一波，用数据帮你找到终极答案',
       buttonText: '深度分析',
       icon: <Scale className="w-8 h-8" />,
       path: '/deep-decision',
@@ -144,7 +144,7 @@ export function HubPage() {
     {
       id: 'archive',
       title: '选择考古档案馆',
-      description: '回溯历史决策，生成人格报告，参与云裁判',
+      description: '复盘决策轨迹，确诊人格报告，再去云裁判围观，当一回互联网判官',
       buttonText: '开始考古',
       icon: <Archive className="w-8 h-8" />,
       path: '/archive',
