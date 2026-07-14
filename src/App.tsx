@@ -6,6 +6,7 @@ import { HubPage } from "./pages/HubPage";
 import { LightDecisionPage } from "./pages/LightDecisionPage";
 import { DeepDecisionPage } from "./pages/DeepDecisionPage";
 import { ArchivePage } from "./pages/ArchivePage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { FloatingLabDecorations, LabFooterDecoration } from "./components/decorations/LabDecorations";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -69,6 +70,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <ArchivePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

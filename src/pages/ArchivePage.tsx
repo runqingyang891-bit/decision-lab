@@ -110,7 +110,7 @@ export function ArchivePage() {
   const [showCloudJudge, setShowCloudJudge] = useState(false);
   const [showEnvelope, setShowEnvelope] = useState(false);
   const [showDevModal, setShowDevModal] = useState(false);
-  
+
   const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -276,6 +276,17 @@ export function ArchivePage() {
               </div>
             )}
 
+            <div className="flex justify-center mb-6">
+              <button
+                onClick={() => setShowDevModal(true)}
+                className="hand-drawn-box bg-white px-6 py-3 text-sm text-black hover:bg-gray-50 transition-colors flex items-center gap-2"
+                style={{ boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)' }}
+              >
+                <Lightbulb className="w-4 h-4" />
+                调取你的自救建议
+              </button>
+            </div>
+
             {completedDecisions.length > 0 && (
               <div>
                 <h3 className="text-sm text-black mb-3">已尘埃落定</h3>
@@ -300,6 +311,11 @@ export function ArchivePage() {
                                 />
                               ))}
                             </div>
+                          )}
+                          {decision.self_analysis && (
+                            <p className="text-xs text-gray-500 mt-2 italic">
+                              自我剖析：{decision.self_analysis}
+                            </p>
                           )}
                         </div>
                         <span className="text-xs text-gray-500">
@@ -364,16 +380,6 @@ export function ArchivePage() {
               </HandDrawnFrame>
             )}
 
-            <div className="flex justify-center pt-4">
-              <button
-                onClick={() => setShowDevModal(true)}
-                className="hand-drawn-box bg-white px-6 py-3 text-sm text-black hover:bg-gray-50 transition-colors flex items-center gap-2"
-                style={{ boxShadow: '3px 3px 0px 0px rgba(0,0,0,1)' }}
-              >
-                <Lightbulb className="w-4 h-4" />
-                调取你的自救建议
-              </button>
-            </div>
           </div>
         )}
 
@@ -389,6 +395,7 @@ export function ArchivePage() {
             </button>
           </div>
         )}
+
       </div>
 
       {showCloudJudge && <CloudJudge onClose={() => setShowCloudJudge(false)} />}
@@ -442,6 +449,7 @@ export function ArchivePage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

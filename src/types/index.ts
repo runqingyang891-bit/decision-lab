@@ -31,6 +31,7 @@ export interface Decision {
   factors?: string[];
   hiddenFactors?: string[];
   factorWeights?: FactorWeight[];
+  self_analysis?: string;
 }
 
 export interface JudgeRecord {

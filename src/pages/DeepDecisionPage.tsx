@@ -187,6 +187,7 @@ export function DeepDecisionPage() {
   const [winner, setWinner] = useState<number | null>(null);
   const [showOverflowModal, setShowOverflowModal] = useState(false);
   const [isGeneratingFactors, setIsGeneratingFactors] = useState(false);
+  const [selfAnalysis, setSelfAnalysis] = useState('');
 
   useEffect(() => {
     if (title.trim() && options[0].trim() && options[1].trim()) {
@@ -311,9 +312,10 @@ export function DeepDecisionPage() {
       options,
       factors: Array.from(keptFactors),
       hiddenFactors: hiddenFactors.filter(f => f.trim()),
-      factorWeights: fw
+      factorWeights: fw,
+      self_analysis: selfAnalysis.trim() || undefined
     });
-    
+
     completeDecision(decisionId, fw);
     navigate('/hub');
   };
@@ -449,15 +451,15 @@ export function DeepDecisionPage() {
         return (
           <div className="space-y-5">
             <p className="text-sm text-gray-500">
-              根据你的选择，系统智能匹配了以下隐秘因素。你也可以自行输入：
+              根据你的选择，系统智能匹配了以下隐秘因素。你也可以自行添加不限数量的隐秘因素：
             </p>
             <div className="space-y-4">
-              {[0, 1].map((idx) => (
+              {hiddenFactors.map((factor, idx) => (
                 <div key={idx}>
-                  <label className="block text-black text-sm mb-2">隐秘因素 {idx + 1}（可选）</label>
                   <div className="flex items-center gap-2">
+                    <label className="block text-black text-sm whitespace-nowrap">隐秘因素 {idx + 1}</label>
                     <HandDrawnInput
-                      value={hiddenFactors[idx]}
+                      value={factor}
                       onChange={(e) => {
                         const newFactors = [...hiddenFactors];
                         newFactors[idx] = e.target.value;
@@ -466,20 +468,34 @@ export function DeepDecisionPage() {
                       placeholder={`如：${hiddenFactorSuggestions[idx] || '只有你知道的秘密'}`}
                       className="flex-1"
                     />
-                    {hiddenFactors[idx].trim() && (
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={factorWeights[hiddenFactors[idx]] || 0}
-                          onChange={(e) => updateImportance(hiddenFactors[idx], Number(e.target.value))}
-                          className="w-20 h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                        />
-                        <span className="text-xs text-gray-600 w-8">{factorWeights[hiddenFactors[idx]] || 0}%</span>
-                      </div>
+                    {hiddenFactors.length > 1 && (
+                      <button
+                        onClick={() => {
+                          const newFactors = hiddenFactors.filter((_, i) => i !== idx);
+                          setHiddenFactors(newFactors);
+                        }}
+                        className="px-2 py-1 border-2 border-gray-500 rounded text-xs text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
+                      >
+                        删除
+                      </button>
                     )}
                   </div>
+                  {factor.trim() && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={factorWeights[factor] || 0}
+                        onChange={(e) => updateImportance(factor, Number(e.target.value))}
+                        className="flex-1 h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${factorWeights[factor] || 0}%, #E5E7EB ${factorWeights[factor] || 0}%, #E5E7EB 100%)`
+                        }}
+                      />
+                      <span className="text-xs text-gray-600 w-8">{factorWeights[factor] || 0}%</span>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2 mt-2">
                     {hiddenFactorSuggestions.slice(idx * 3, idx * 3 + 3).map((suggestion) => (
                       <button
@@ -498,8 +514,15 @@ export function DeepDecisionPage() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => setHiddenFactors([...hiddenFactors, ''])}
+              className="px-4 py-2 border-2 border-gray-500 rounded text-xs text-black hover:bg-gray-50 transition-colors"
+              style={{ boxShadow: '2px 2px 0px 0px rgba(107,114,128,0.6)' }}
+            >
+              + 添加隐秘因素
+            </button>
             {showOverflowWarning && (
-              <div className="p-3 border-2 border-black rounded bg-white">
+              <div className="p-3 border-2 border-gray-500 rounded bg-white">
                 <p className="text-xs text-magic-red">
                   所有因素的纠结比重总和已超过100%（当前: {totalImportance}%），请注意合理分配。
                 </p>
@@ -517,7 +540,7 @@ export function DeepDecisionPage() {
         return (
           <div className="space-y-5">
             <div className="text-center mb-2">
-              <p className="text-sm text-gray-500">每个因素共有100砝码，在选项A和选项B之间分配</p>
+              <p className="text-sm text-gray-500">每个因素共有100砝码，心中天平偏向因素的哪测，就请给该侧更多的砝码吧</p>
             </div>
 
             <div className="relative w-full h-32 mb-4">
@@ -747,7 +770,19 @@ export function DeepDecisionPage() {
                 你的潜意识已经偷偷把它的重要性拔高了。你不是在寻找最优解，你只是在寻找一个"支持你犯傻"的借口。
               </p>
             </div>
-            
+
+            <div className="mb-4">
+              <label className="block text-sm text-black mb-2">自我剖析（选填）</label>
+              <p className="text-xs text-gray-500 mb-2">写下你不甘心的因素，系统会记录到你的决策档案中</p>
+              <textarea
+                value={selfAnalysis}
+                onChange={(e) => setSelfAnalysis(e.target.value)}
+                placeholder="例如：虽然理性上知道A更好，但我内心其实更在意..."
+                className="w-full p-3 border-2 border-gray-500 rounded text-sm bg-white resize-none"
+                rows={3}
+              />
+            </div>
+
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDebunkModal(false)}

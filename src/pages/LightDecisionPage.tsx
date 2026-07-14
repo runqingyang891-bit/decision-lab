@@ -208,36 +208,37 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
 
   const handleSpin = () => {
     if (isSpinning || remainingOptions.length <= 1) return;
-    
+
     setIsSpinning(true);
     setEliminated(null);
-    
+
     const randomIndex = Math.floor(Math.random() * remainingOptions.length);
     const eliminatedOption = remainingOptions[randomIndex];
     const n = remainingOptions.length;
-    
+
     const sliceAngle = 360 / n;
     const targetCenterAngle = randomIndex * sliceAngle + sliceAngle / 2;
     const extraSpins = 5 + Math.floor(Math.random() * 3);
     const finalRotation = rotation + extraSpins * 360 + (360 - targetCenterAngle);
-    
+
     setRotation(finalRotation);
-    
+
     setTimeout(() => {
       setEliminated(eliminatedOption);
-      setIsSpinning(false);
-      
+
       setTimeout(() => {
         setRemainingOptions(remainingOptions.filter((_, i) => i !== randomIndex));
-        
+
         if (remainingOptions.length === 2) {
           setTimeout(() => {
             setShowModal(true);
             onResult(remainingOptions.filter((_, i) => i !== randomIndex)[0]);
           }, 500);
         }
-      }, 1500);
-    }, 3000);
+
+        setIsSpinning(false);
+      }, 800);
+    }, 2000);
   };
 
   if (remainingOptions.length === 1) {
@@ -272,7 +273,7 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
       <div className="relative w-72 h-72 mb-8">
         <div 
           className="absolute inset-4 rounded-full"
-          style={{ backgroundColor: '#8B4513', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}
+          style={{ backgroundColor: '#B8956A', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)' }}
         />
         
         <div
@@ -319,8 +320,8 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
                 </g>
               );
             })}
-            <circle cx="100" cy="100" r="18" fill="#FFD700" stroke="#8B4513" strokeWidth="3" />
-            <circle cx="100" cy="100" r="8" fill="#8B4513" />
+            <circle cx="100" cy="100" r="18" fill="#FFD700" stroke="#B8956A" strokeWidth="3" />
+            <circle cx="100" cy="100" r="8" fill="#B8956A" />
           </svg>
         </div>
         
@@ -338,7 +339,7 @@ function EliminationWheelGame({ options, onResult }: { options: string[]; onResu
         
         <div 
           className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-32 h-8 rounded"
-          style={{ backgroundColor: '#8B4513', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}
+          style={{ backgroundColor: '#B8956A', boxShadow: '0 2px 5px rgba(0,0,0,0.15)' }}
         />
       </div>
 
@@ -514,6 +515,8 @@ function SubconsciousThrowGame({ options, onResult }: { options: string[]; onRes
   const [result, setResult] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const [showGlassShatter, setShowGlassShatter] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   const handleClick = () => {
     if (result) return;
@@ -525,16 +528,20 @@ function SubconsciousThrowGame({ options, onResult }: { options: string[]; onRes
       const newProgress = Math.min(prev + increment, 100);
       
       if (newProgress >= 100) {
+        setShowGlassShatter(true);
         setTimeout(() => {
+          setShowGlassShatter(false);
+          setShowPrompt(true);
           const randomIndex = Math.floor(Math.random() * options.length);
           const finalResult = options[randomIndex];
           setResult(finalResult);
           
           setTimeout(() => {
+            setShowPrompt(false);
             setShowModal(true);
             onResult(finalResult);
-          }, 1000);
-        }, 300);
+          }, 2000);
+        }, 1000);
         return 100;
       }
       return newProgress;
@@ -599,11 +606,58 @@ function SubconsciousThrowGame({ options, onResult }: { options: string[]; onRes
               setProgress(0);
               setResult(null);
               setClickCount(0);
+              setShowGlassShatter(false);
+              setShowPrompt(false);
             }}
             className="mt-3 px-4 py-2 border-2 border-gray-500 rounded text-xs hover:bg-gray-50 transition-colors"
           >
             再来一次
           </button>
+        </div>
+      )}
+
+      {showGlassShatter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="relative w-full h-full">
+            {[...Array(12)].map((_, i) => {
+              const angle = (i * 30) * Math.PI / 180;
+              const distance = 100 + Math.random() * 200;
+              const x = Math.cos(angle) * distance;
+              const y = Math.sin(angle) * distance;
+              const delay = Math.random() * 0.1;
+              return (
+                <div
+                  key={i}
+                  className="absolute top-1/2 left-1/2"
+                  style={{
+                    animation: `glassShard 0.8s ease-out ${delay}s forwards`,
+                    ['--shard-x' as string]: `${x}px`,
+                    ['--shard-y' as string]: `${y}px`,
+                  }}
+                >
+                  <div
+                    className="border-2 border-white bg-white/30"
+                    style={{
+                      width: `${10 + Math.random() * 20}px`,
+                      height: `${10 + Math.random() * 20}px`,
+                      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                      transform: `rotate(${i * 30}deg)`,
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {showPrompt && (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="text-center">
+            <p className="text-lg text-white hand-font" style={{ animation: 'fadeInUp 0.5s ease-out' }}>
+              在蓄力完成的那一刻，你最希望看到什么？
+            </p>
+          </div>
         </div>
       )}
 
@@ -786,10 +840,10 @@ export function LightDecisionPage() {
               </div>
             ) : (
               <>
-                {activeGame === 'coin' && <CoinFlipGame options={options} onResult={handleGameResult} />}
-                {activeGame === 'wheel' && <EliminationWheelGame options={options} onResult={handleGameResult} />}
-                {activeGame === 'scratch' && <ScratchCardGame options={options} onResult={handleGameResult} />}
-                {activeGame === 'throw' && <SubconsciousThrowGame options={options} onResult={handleGameResult} />}
+                {activeGame === 'coin' && <CoinFlipGame key={options.join(',')} options={options} onResult={handleGameResult} />}
+                {activeGame === 'wheel' && <EliminationWheelGame key={options.join(',')} options={options} onResult={handleGameResult} />}
+                {activeGame === 'scratch' && <ScratchCardGame key={options.join(',')} options={options} onResult={handleGameResult} />}
+                {activeGame === 'throw' && <SubconsciousThrowGame key={options.join(',')} options={options} onResult={handleGameResult} />}
               </>
             )}
           </div>

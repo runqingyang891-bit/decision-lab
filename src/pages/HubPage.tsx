@@ -4,7 +4,7 @@ import { useAppStore } from '../stores/appStore';
 import { HandDrawnFrame } from '../components/layout/HandDrawnFrame';
 import { MagicButton } from '../components/common/MagicButton';
 import { getDaysDifference, adjustRegretFactor } from '../utils/decisionAlgorithms';
-import { Coins, Scale, Archive, AlertTriangle, ChevronRight, Gavel, RotateCcw, Sparkles } from 'lucide-react';
+import { Coins, Scale, Archive, AlertTriangle, ChevronRight, Gavel, Sparkles } from 'lucide-react';
 import { Decision } from '../types';
 
 interface ReflectionModalProps {
@@ -65,16 +65,10 @@ function ReflectionModal({ decision, days, onClose }: ReflectionModalProps) {
 
 export function HubPage() {
   const navigate = useNavigate();
-  const { user_profile, decisions, judge_records, markAsReflected, updateRegretFactors, learning_parameters, resetAll } = useAppStore();
+  const { user_profile, decisions, judge_records, markAsReflected, updateRegretFactors, learning_parameters } = useAppStore();
   const [showModal, setShowModal] = useState(false);
   const [pendingDecision, setPendingDecision] = useState<Decision | null>(null);
   const [pendingDays, setPendingDays] = useState(0);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-
-  const handleReset = () => {
-    resetAll();
-    navigate('/');
-  };
 
   useEffect(() => {
     const eligibleDecisions = decisions.filter(
@@ -181,8 +175,8 @@ export function HubPage() {
                 <div className="text-[10px] text-gray-500">进行中</div>
               </div>
             </div>
-            <button className="w-12 h-12 rounded-full bg-magic-red border-2 border-black flex items-center justify-center text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
-              <span className="text-lg">!</span>
+            <button onClick={() => navigate('/profile')} className="w-12 h-12 rounded-full bg-magic-red border-2 border-black flex items-center justify-center text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+              <span className="text-lg">ME</span>
             </button>
           </div>
         </div>
@@ -227,6 +221,11 @@ export function HubPage() {
                     <p className="text-[10px] text-gray-400 mt-0.5">
                       {decision.type === 'long_term' ? '长期决策' : '短期决策'} · {decision.status === 'completed' ? '已完成' : '进行中'}
                     </p>
+                    {decision.self_analysis && (
+                      <p className="text-[10px] text-gray-400 mt-0.5 truncate italic">
+                        自我剖析：{decision.self_analysis}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => navigate('/archive')}
@@ -262,53 +261,19 @@ export function HubPage() {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-6">
-          <div className="relative">
-            <div
-              className="px-4 py-2 border-2 border-dashed border-black text-xs text-gray-600"
-              style={{
-                transform: 'rotate(-3deg)',
-                fontFamily: 'Georgia, serif',
-                fontStyle: 'italic'
-              }}
-            >
-              纠结症绝密档案
-            </div>
-          </div>
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            className="hand-drawn-box bg-white px-5 py-2 text-sm text-black hover:bg-gray-50 transition-colors flex items-center gap-2"
+        <div className="flex items-center justify-center mt-8">
+          <div
+            className="px-6 py-3 border-2 border-dashed border-gray-500 text-sm text-gray-600"
+            style={{
+              transform: 'rotate(-3deg)',
+              fontFamily: 'Georgia, serif',
+              fontStyle: 'italic'
+            }}
           >
-            <RotateCcw className="w-4 h-4" />
-            重建纠结症档案
-          </button>
+            纠结症绝密档案
+          </div>
         </div>
       </div>
-
-      {showResetConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="hand-drawn-box bg-white p-6 max-w-sm w-full text-center">
-            <p className="text-sm text-black mb-2">确认重建档案？</p>
-            <p className="text-xs text-gray-400 mb-6">
-              所有决策记录、裁判记录和人格分析将被清零，此操作不可撤销。
-            </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => setShowResetConfirm(false)}
-                className="px-4 py-2 border-2 border-black rounded text-sm hover:bg-gray-50 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={handleReset}
-                className="magic-button px-4 py-2 text-sm"
-              >
-                确认清零
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {showModal && pendingDecision && (
         <ReflectionModal
