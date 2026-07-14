@@ -143,7 +143,7 @@ export function HubPage() {
     },
     {
       id: 'archive',
-      title: '选择考古档案馆',
+      title: '云法庭与博物馆',
       description: '复盘决策轨迹，确诊人格报告，再去云裁判围观，当一回互联网判官',
       buttonText: '开始考古',
       icon: <Archive className="w-8 h-8" />,

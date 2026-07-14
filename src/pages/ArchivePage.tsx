@@ -155,7 +155,7 @@ export function ArchivePage() {
             ← 返回 Hub
           </button>
           <h1 className="text-2xl hand-font text-black flex-1 text-center -ml-16">
-            选择考古档案馆
+            云法庭与博物馆
           </h1>
         </div>
 
