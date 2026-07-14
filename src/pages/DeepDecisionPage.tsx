@@ -6,6 +6,7 @@ import { MagicButton } from '../components/common/MagicButton';
 import { HandDrawnInput } from '../components/common/HandDrawnInput';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { generateDecisionId } from '../utils/decisionAlgorithms';
+import { generateFactors, suggestFactorsDynamic } from '../utils/aiService';
 import { FactorWeight } from '../types';
 
 type StepType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -149,115 +150,6 @@ function RunningSimulationPage({ onComplete }: { onComplete: () => void }) {
   );
 }
 
-function suggestFactorsDynamic(title: string): string[] {
-  const lowerTitle = title.toLowerCase();
-
-  const pools: Record<string, string[][]> = {
-    'offer': [
-      ['薪资对比', '长期发展', '通勤距离', '平台规模'],
-      ['薪资待遇', '团队氛围', '发展空间', '通勤时间'],
-      ['薪资涨幅', '技术成长', '平台大小', '业务方向'],
-    ],
-    '工作': [
-      ['薪资待遇', '通勤距离', '发展空间', '团队氛围'],
-      ['晋升机会', '工作内容', '公司前景', '福利待遇'],
-      ['加班强度', '老板风格', '团队水平', '工作环境'],
-    ],
-    '跳槽': [
-      ['薪资涨幅', '平台发展', '通勤距离', '团队氛围'],
-      ['技术成长', '业务方向', '期权股票', '公司前景'],
-      ['晋升空间', '团队水平', '平台大小', '工作强度'],
-    ],
-    '辞职': [
-      ['经济储备', '下一步规划', '心理健康', '市场行情'],
-      ['职业发展', '离职成本', '行业趋势', '备选方案'],
-    ],
-    '职场': [
-      ['人际关系', '晋升机会', '工作内容', '薪资水平'],
-      ['直属领导', '团队规模', '公司文化', '加班情况'],
-    ],
-    '公司': [
-      ['薪资待遇', '通勤距离', '发展空间', '团队氛围'],
-      ['公司前景', '福利待遇', '工作环境', '企业文化'],
-    ],
-    '感情': [
-      ['三观契合', '经济基础', '未来规划', '性格匹配'],
-      ['沟通方式', '生活习惯', '信任程度', '共同兴趣'],
-    ],
-    '恋爱': [
-      ['感情基础', '性格匹配', '未来规划', '经济状况'],
-      ['家庭态度', '沟通方式', '信任程度', '共同兴趣'],
-    ],
-    '结婚': [
-      ['经济基础', '三观契合', '家庭背景', '未来规划'],
-      ['生育观念', '生活习惯', '双方父母', '居住安排'],
-    ],
-    '分手': [
-      ['感情残存', '未来发展', '社交圈子', '心理准备'],
-      ['经济纠葛', '外界压力', '自尊心', '孤独承受'],
-    ],
-    '复合': [
-      ['问题是否解决', '信任重建', '双方改变', '感情基础'],
-      ['外界看法', '心理预期', '时间成本', '分手原因'],
-    ],
-    '学习': [
-      ['学术水平', '就业前景', '学费成本', '城市环境'],
-      ['师资力量', '课程设置', '校友资源', '学习氛围'],
-    ],
-    '考研': [
-      ['专业排名', '导师水平', '就业前景', '考试难度'],
-      ['学费成本', '城市选择', '科研方向', '学校名气'],
-    ],
-    '留学': [
-      ['学校排名', '专业匹配', '学费成本', '就业前景'],
-      ['语言环境', '文化适应', '安全程度', '签证难度'],
-    ],
-    '买房': [
-      ['价格预算', '地理位置', '周边配套', '升值空间'],
-      ['户型朝向', '学区资源', '交通便利', '小区环境'],
-    ],
-    '租房': [
-      ['租金成本', '地理位置', '交通便利', '房屋状况'],
-      ['周边配套', '户型朝向', '租期灵活', '房东态度'],
-    ],
-    '搬家': [
-      ['居住成本', '通勤距离', '周边配套', '生活便利'],
-      ['居住环境', '社区安全', '房屋面积', '邻里关系'],
-    ],
-    '买车': [
-      ['价格预算', '油耗性能', '品牌口碑', '维护成本'],
-      ['空间大小', '安全配置', '外观设计', '保值率'],
-    ],
-    '旅行': [
-      ['预算成本', '风景体验', '安全程度', '交通便利'],
-      ['文化体验', '美食特色', '天气气候', '人流量'],
-    ],
-    '创业': [
-      ['资金储备', '市场需求', '团队伙伴', '风险评估'],
-      ['产品方向', '竞争格局', '盈利模式', '行业趋势'],
-    ],
-    '投资': [
-      ['预期收益', '风险等级', '资金流动性', '市场趋势'],
-      ['投资周期', '政策风险', '行业前景', '分散程度'],
-    ],
-  };
-
-  for (const [keyword, factorSets] of Object.entries(pools)) {
-    if (lowerTitle.includes(keyword)) {
-      const randomSet = factorSets[Math.floor(Math.random() * factorSets.length)];
-      return [...randomSet];
-    }
-  }
-
-  const defaultSets = [
-    ['重要程度', '可行性', '风险系数', '经济影响'],
-    ['短期收益', '长期价值', '机会成本', '风险评估'],
-    ['内心渴望', '理性分析', '短期影响', '长期发展'],
-    ['时间成本', '精力投入', '收益预期', '不确定性'],
-  ];
-  return [...defaultSets[Math.floor(Math.random() * defaultSets.length)]];
-}
-
 function getHiddenFactorSuggestions(title: string): string[] {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes('工作') || lowerTitle.includes('跳槽') || lowerTitle.includes('公司') || lowerTitle.includes('职场')) {
@@ -294,17 +186,30 @@ export function DeepDecisionPage() {
   const [showDebunkModal, setShowDebunkModal] = useState(false);
   const [winner, setWinner] = useState<number | null>(null);
   const [showOverflowModal, setShowOverflowModal] = useState(false);
+  const [isGeneratingFactors, setIsGeneratingFactors] = useState(false);
 
   useEffect(() => {
-    if (title.trim()) {
-      const factors = suggestFactorsDynamic(title);
-      setSuggestedFactors(factors);
-      setKeptFactors(new Set(factors));
+    if (title.trim() && options[0].trim() && options[1].trim()) {
+      setIsGeneratingFactors(true);
       
-      const hiddenSuggestions = getHiddenFactorSuggestions(title);
-      setHiddenFactorSuggestions(hiddenSuggestions);
+      generateFactors(title, options).then((result) => {
+        setSuggestedFactors(result.factors);
+        setKeptFactors(new Set(result.factors));
+        
+        const hiddenSuggestions = getHiddenFactorSuggestions(title);
+        setHiddenFactorSuggestions(hiddenSuggestions);
+        setIsGeneratingFactors(false);
+      }).catch(() => {
+        const factors = suggestFactorsDynamic(title);
+        setSuggestedFactors(factors);
+        setKeptFactors(new Set(factors));
+        
+        const hiddenSuggestions = getHiddenFactorSuggestions(title);
+        setHiddenFactorSuggestions(hiddenSuggestions);
+        setIsGeneratingFactors(false);
+      });
     }
-  }, [title]);
+  }, [title, options[0], options[1]]);
 
   const allActiveFactors = [...Array.from(keptFactors), ...hiddenFactors.filter(f => f.trim())];
 
@@ -465,14 +370,21 @@ export function DeepDecisionPage() {
       case 2:
         return (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              系统识别到你的问题，生成了以下核心因子。
-            </p>
-            <p className="text-sm text-gray-600">
-              点击「划掉」剔除不相关因素，调整「纠结比重」。
-            </p>
-            <div className="space-y-4 pt-2">
-              {suggestedFactors.map((factor) => (
+            {isGeneratingFactors ? (
+              <div className="text-center py-10">
+                <div className="w-8 h-8 border-3 border-gray-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-sm text-gray-600">正在智能分析决策因子...</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600">
+                  系统识别到你的问题，生成了以下核心因子。
+                </p>
+                <p className="text-sm text-gray-600">
+                  点击「划掉」剔除不相关因素，调整「纠结比重」。
+                </p>
+                <div className="space-y-4 pt-2">
+                  {suggestedFactors.map((factor) => (
                 <div
                   key={factor}
                   className={`hand-drawn-box p-4 transition-all wood-paper-bg ${
@@ -524,10 +436,12 @@ export function DeepDecisionPage() {
               ))}
             </div>
             <div className="text-center pt-2">
-              <p className="text-xs text-gray-500">
-                总纠结比重：{totalImportance} / 100
-              </p>
-            </div>
+                  <p className="text-xs text-gray-500">
+                    总纠结比重：{totalImportance} / 100
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         );
 
